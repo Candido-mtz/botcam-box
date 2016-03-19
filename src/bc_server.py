@@ -3,7 +3,8 @@
 import socket
 import threading
 import time
-from Queue import Queue
+from multiprocessing import Queue
+from libs.message import Message
 
 class Server:
     def __init__(self):
@@ -13,16 +14,16 @@ class Server:
 
     def receiver(self, client):
         print('Atendiendo')
-        time.sleep(30)
-        self.cola.put('Thank you for connecting')
-        self.cola.put(0);
+        time.sleep(10)
+        self.cola.put(Message(1, 0, 'Thank you for connecting'))
+        self.cola.put(Message(0, 0));
     
     def sender(self, client):
         while True:
             dato = self.cola.get()
-            if dato == 0:
+            if dato.getTipo() == 0 and dato.getSubtipo() == 0:
                 break
-            client.send(dato)
+            client.send(str(dato))
         client.close()
         print('Conexion cerrada')
 
