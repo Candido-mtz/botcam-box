@@ -36,7 +36,7 @@ class Server:
             msg = msg[10:]
             while len(msg) < (lng+2):
                 dat = client.recv(min(lng+2-len(msg),2048))
-                if not dat:
+                if (dat is None) or (len(dat) == 0):
                     self.cola.put(Message(0, 0))
                     return
                 msg += dat;
@@ -55,7 +55,13 @@ class Server:
             dato = self.cola.get()
             if dato.getTipo() == 0 and dato.getSubtipo() == 0:
                 break
-            client.send(str(dato))
+            fsend = '>' + str(dato)
+            send = 0
+            while send < len(fsend):
+                ss = client.send(fsend[send:])
+                if ss == 0:
+                    raise "Error al enviar"
+                send += ss
         client.close()
         print('Conexion cerrada')
 
