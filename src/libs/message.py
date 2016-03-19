@@ -1,4 +1,36 @@
 #!/usr/bin/python
+
+def getMessageFromClient(client, msg):
+    while True:
+        flag = False
+        while not (flag and len(msg)>=10):
+            dat = client.recv(1024)
+            if not dat:
+                return (Message(0,0), msg)
+            msg += dat
+            if not flag:
+                i = msg.find('>')
+                if i >= 0:
+                    msg = msg[i+1:]
+                    flag = True
+                else:
+                    msg = ''
+        tipo = int( msg[0:2])
+        stipo = int(msg[2:4])
+        lng = int(msg[4:10])
+        msg = msg[10:]
+        while len(msg) < (lng+2):
+            dat = client.recv(min(lng+2-len(msg),2048))
+            if (dat is None) or (len(dat) == 0):
+                return (Message(0,0), msg)
+            msg += dat;
+        if msg[lng:lng+2] != ';;':
+            return (Message(0,1), msg)
+        ds = msg[:lng]
+        msg = msg[lng+2:]
+        return (Message(tipo, stipo, ds), msg)
+
+
 class Message:
     
     def __init__(self, tipo, subtipo, datos=None):
