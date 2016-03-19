@@ -14,9 +14,41 @@ class Server:
 
     def receiver(self, client):
         print('Atendiendo')
-        time.sleep(10)
-        self.cola.put(Message(1, 0, 'Thank you for connecting'))
-        self.cola.put(Message(0, 0));
+        msg = ''
+        while True:
+            flag = False
+            while not flag and len(msg)<10:
+                dat = client.recv(1024)
+                if not dat:
+                    self.cola.put( Message(0, 0))
+                    return
+                msg += dat
+                if not flag:
+                    i = msg.find('>')
+                    if i >= 0:
+                        msg = msg[i+1:]
+                        flag = True
+                    else:
+                        msg = ''
+            tipo = int( msg[0:2])
+            stipo = int(msg[2:4])
+            lng = int(msg[4:10])
+            msg = msg[10:]
+            while len(msg) < (lng+2):
+                dat = client.recv(min(lng+2-len(msg),2048))
+                if not dat:
+                    self.cola.put(Message(0, 0))
+                    return
+                msg += dat;
+            if msg[lng:lng+2] != ';;':
+                print ('Error al recibir.')
+                self.cola.put(Message(0, 0))
+                return
+            ds = msg[:lng]
+            msg = msg[lng+2:]
+            mm = Message(tipo, stipo, ds)
+            print (str(mm))
+            self.cola.put(mm)
     
     def sender(self, client):
         while True:

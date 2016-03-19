@@ -20,7 +20,7 @@ class Message:
             raise 'El tipo solo puede ser de 0 a 99'
         if(self.subtipo >99):
             raise 'El subtipo solo puede ser de 0 a 99'
-        if self.datos is None:
+        if (self.datos is None) or (len(self.datos) == 0):
             return '%02d%02d%06d;;' %(self.tipo, self.subtipo, 0)
         if len(self.datos) > 999999:
             raise 'Los datos enviados debe de ser menores a 1M'
