@@ -5,12 +5,14 @@ import threading
 import time
 from multiprocessing import Queue
 import libs.message as ms
+from libs.sys_manager import SysManager
 
 class Server:
     def __init__(self):
         self.cola = Queue()
         self.sndr = None
         self.rcvr = None
+        self.syst = SysManager(self.cola)
 
     def receiver(self, client):
         print('Atendiendo')
@@ -23,8 +25,8 @@ class Server:
                 elif mm.getSubtipo() == 0:
                     self.cola.put(mm)
                     break
-            elif mm.getTipo()== 1:
-                print (mm.getDatos())
+            elif mm.getTipoBajo() == 1:
+                self.syst.procesar(mm)
             else:
                 pass
    
@@ -51,7 +53,10 @@ class Server:
         s.listen(2)
         print ('listening on port : % d' % port)
         while True:
-            c, addr = s.accept()
+            try:
+                c, addr = s.accept()
+            except Exception, KeyboardInterrupt:
+                break
             if not(self.rcvr is None):
                 self.rcvr.join()
             self.sndr = threading.Thread(target=self.sender, args=(c,))
@@ -60,6 +65,8 @@ class Server:
             self.rcvr = threading.Thread(target=self.receiver, args=(c,))
             self.rcvr.setDaemon(True)
             self.rcvr.start()
+        s.close()
+        print ("Adios.")
 
 if __name__ == '__main__':
     srv = Server()
