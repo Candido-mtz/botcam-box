@@ -38,6 +38,12 @@ class Message:
         self.subtipo = subtipo
         self.datos = datos
 
+    def getTipoBajo(self):
+        return self.tipo % 10
+
+    def getTipoAlto(self):
+        return int(self.tipo / 10)
+
     def getTipo(self):
         return self.tipo
 
@@ -53,10 +59,10 @@ class Message:
         if(self.subtipo >99):
             raise 'El subtipo solo puede ser de 0 a 99'
         if (self.datos is None) or (len(self.datos) == 0):
-            return '%02d%02d%06d;;' %(self.tipo, self.subtipo, 0)
+            return '>%02d%02d%06d;;' %(self.tipo, self.subtipo, 0)
         if len(self.datos) > 999999:
             raise 'Los datos enviados debe de ser menores a 1M'
-        return '%02d%02d%06d%s;;' % (self.tipo, self.subtipo, len(self.datos), self.datos)
+        return '>%02d%02d%06d%s;;' % (self.tipo, self.subtipo, len(self.datos), self.datos)
 
     def __str__(self):
         return self.getMessage()

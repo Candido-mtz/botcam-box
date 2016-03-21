@@ -33,7 +33,7 @@ class Server:
             dato = self.cola.get()
             if dato.getTipo() == 0 and dato.getSubtipo() == 0:
                 break
-            fsend = '>' + str(dato)
+            fsend = str(dato)
             send = 0
             while send < len(fsend):
                 ss = client.send(fsend[send:])
